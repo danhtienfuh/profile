@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | Nguyễn Danh Tiến</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Be Vietnam Pro', 'sans-serif'] },
+                    colors: { primary: '#4f46e5', accent: '#ec4899' },
+                    animation: {
+                        'marquee': 'marquee 25s linear infinite',
+                        'marquee-reverse': 'marqueeReverse 25s linear infinite',
+                        'blob': 'blob 7s infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                        'wave': 'wave 2.5s infinite',
+                        'music-bar': 'musicBar 1s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } },
+                        marqueeReverse: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(0%)' } },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        wave: {
+                            '0%': { transform: 'rotate(0deg)' }, '10%': { transform: 'rotate(14deg)' },
+                            '20%': { transform: 'rotate(-8deg)' }, '30%': { transform: 'rotate(14deg)' },
+                            '40%': { transform: 'rotate(-4deg)' }, '50%': { transform: 'rotate(10deg)' },
+                            '60%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(0deg)' },
+                        },
+                        musicBar: {
+                            '0%, 100%': { height: '10%' },
+                            '50%': { height: '100%' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Icon Libs -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Confetti & Tilt JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow-x: hidden; transition: background-color 0.5s ease; cursor: none; }
+        
+        /* SCI-FI PRELOADER */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0f172a; z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .loading-text {
+            color: #ec4899; font-size: 14px; margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.7);
+            min-height: 20px; letter-spacing: 1px;
+        }
+        .progress-container {
+            width: 300px; height: 4px; background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px; overflow: hidden; position: relative;
+        }
+        .progress-bar {
+            width: 0%; height: 100%; background: linear-gradient(90deg, #4f46e5, #ec4899);
+            box-shadow: 0 0 15px #4f46e5; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* SCROLL REVEAL ANIMATION */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* MAGIC DUST PARTICLES */
+        .magic-particle {
+            position: absolute; pointer-events: none;
+            background: radial-gradient(circle, #fff, transparent);
+            border-radius: 50%; animation: fadeOut 1s forwards;
+            z-index: 9998;
+        }
+        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0) translateY(20px); } }
+
+        /* TOAST NOTIFICATION */
+        #toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            border-left: 4px solid #4f46e5; padding: 12px 24px; border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateX(-100%);
+            transition: transform 0.3s ease-out; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .dark .toast { background: rgba(30, 41, 59, 0.9); color: white; border-left: 4px solid #ec4899; }
+        .toast.show { transform: translateX(0); }
+
+        /* CURSOR */
+        #cursor {
+            position: fixed; top: 0; left: 0; width: 32px; height: 32px;
+            border: 2px solid rgba(79, 70, 229, 0.5); border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+            transition: width 0.3s, height 0.3s, background-color 0.3s; mix-blend-mode: difference;
+        }
+        #cursor-dot {
+            position: fixed; top: 0; left: 0; width: 8px; height: 8px;
+            background-color: #ec4899; border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 10000;
+        }
+        body.hovering #cursor { width: 64px; height: 64px; background-color: rgba(255, 255, 255, 0.1); border-color: transparent; backdrop-filter: blur(2px); }
+
+        /* LAYOUT & EFFECTS */
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; transition: opacity 0.5s; }
+        
+        #footer-canvas {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; opacity: 0.8; pointer-events: none;
+            mask-image: linear-gradient(to top, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9); 
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            transition: background 0.3s, border 0.3s;
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .super-text {
+            background: linear-gradient(-45deg, #4f46e5, #ec4899, #22d3ee, #4f46e5); background-size: 300%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientAnim 5s ease infinite;
+        }
+        @keyframes gradientAnim { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .waving-hand { display: inline-block; transform-origin: 70% 70%; animation: wave 2.5s infinite; }
+        .social-card { transition: all 0.3s; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.6); }
+        .dark .social-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+        .btn-cosmic { position: relative; background: #0f172a; color: white; z-index: 1; overflow: hidden; transition: all 0.5s; }
+        .btn-cosmic::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, #4f46e5, #ec4899, #4f46e5); background-size: 200% auto; z-index: -1; opacity: 0; transition: opacity 0.5s ease; animation: shine 3s linear infinite; }
+        .btn-cosmic:hover { transform: translateY(-5px) scale(1.05); }
+        .btn-cosmic:hover::before { opacity: 1; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .scan-badge { position: relative; overflow: hidden; background: rgba(79, 70, 229, 0.05); border: 1px solid rgba(79, 70, 229, 0.2); }
+        .scan-badge::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.2), transparent); animation: scan 3s infinite; }
+        @keyframes scan { 0% { left: -100%; } 50%, 100% { left: 100%; } }
+
+        .typing-cursor { display: inline-block; width: 3px; height: 1em; background-color: #ec4899; margin-left: 5px; vertical-align: bottom; animation: blinkCursor 0.8s infinite; }
+        @keyframes blinkCursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .music-bars span { display: inline-block; width: 4px; background: #ec4899; border-radius: 99px; animation: musicBar 1s ease-in-out infinite; }
+        .music-bars span:nth-child(1) { animation-delay: 0.1s; height: 40%; }
+        .music-bars span:nth-child(2) { animation-delay: 0.3s; height: 60%; }
+        .music-bars span:nth-child(3) { animation-delay: 0.5s; height: 30%; }
+        .music-bars span:nth-child(4) { animation-delay: 0.2s; height: 70%; }
+        .paused .music-bars span { animation-play-state: paused; height: 20% !important; transition: height 0.3s; }
+        .paused .spin-disk { animation-play-state: paused; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-500 overflow-hidden">
+
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="loading-text" id="loader-text">> System Boot Sequence Initiated...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="loader-bar"></div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- SCROLL PROGRESS BAR -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 z-[100] transition-all duration-75 ease-out" style="width: 0%"></div>
+
+    <!-- LAYERS -->
+    <div id="cursor"></div>
+    <div id="cursor-dot"></div>
+    <div id="magic-dust-container" class="fixed top-0 left-0 w-full h-full pointer-events-none z-[9998]"></div>
+
+    <!-- BACKGROUND 3D -->
+    <div id="canvas-container"></div>
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 transition-all duration-300 top-0 px-6 py-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center glass-panel rounded-full px-8 py-4 hover:scale-[1.01] transition-transform duration-500">
+            <span class="hoverable text-2xl font-black tracking-tighter text-slate-800 dark:text-white cursor-pointer group" onclick="fireConfetti()">
+                XIN CHÀO<span class="text-primary inline-block transition-transform group-hover:-translate-y-1 group-hover:rotate-12">.</span>
+            </span>
+            <div class="hidden md:flex gap-10 font-bold text-slate-500 dark:text-slate-300 text-sm uppercase tracking-wide">
+                <a href="#" class="hoverable hover:text-primary transition relative group">Trang chủ <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#" class="hoverable hover:text-primary transition relative group">Dự án <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="hoverable p-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-yellow-400 hover:shadow-lg transition-all duration-300">
+                    <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                <a href="#" onclick="fireConfetti()" class="hoverable btn-cosmic px-6 py-3 rounded-full font-bold text-sm shadow-lg">Liên hệ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN SECTION -->
+    <main class="min-h-screen max-w-7xl mx-auto px-6 pt-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative">
+        <div class="space-y-10 z-10 relative">
+            <div class="absolute -top-20 -left-20 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+            <div class="absolute -top-10 left-40 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+            <div class="relative reveal">
+                <div class="inline-flex items-center px-5 py-2 rounded-full scan-badge text-primary font-bold text-sm mb-6 shadow-sm hoverable dark:bg-slate-800/50">
+                    <span class="mr-2 relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                    </span>
+                    🚀 Fullstack Developer
+                </div>
+                <h1 class="text-6xl md:text-8xl font-black leading-[0.9] text-slate-900 dark:text-white tracking-tight">
+                    Nguyễn <br> <span class="super-text hoverable pb-2 inline-block">Danh Tiến</span>
+                </h1>
+                
+                <div class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-lg mt-8 font-medium min-h-[80px]">
+                    <span id="typewriter-text"></span><span class="typing-cursor"></span>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-6 pt-4 reveal">
+                <button onclick="scrollToContent(); fireConfetti()" class="hoverable btn-cosmic px-10 py-5 rounded-full font-bold text-lg shadow-2xl shadow-indigo-500/40 flex items-center gap-4 group">
+                    <span>Xem thêm về mình</span>
+                    <span class="bg-white/20 p-1 rounded-full group-hover:bg-white/30 transition"><i data-feather="arrow-down" class="w-5 h-5 animate-bounce"></i></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="relative z-10 lg:pl-10 hoverable reveal">
+            <div class="group relative transition-all duration-700 hover:rotate-0 rotate-2 perspective-1000" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.5">
+                <div class="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-[2rem] blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                <div class="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl p-8 rounded-[1.8rem] border border-white/50 dark:border-slate-700 shadow-2xl">
+                    <div class="flex justify-between items-end mb-8">
+                        <div><h3 class="text-3xl font-black text-slate-800 dark:text-white tracking-tighter">Tech Stack</h3><p class="text-slate-500 font-medium">Vũ khí hạng nặng</p></div>
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse delay-75"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse delay-150"></div>
+                        </div>
+                    </div>
+                    <div class="relative flex overflow-hidden mb-6 mask-gradient">
+                        <div class="animate-marquee whitespace-nowrap flex gap-8">
+                            <i class="devicon-react-original colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-javascript-plain colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-html5-plain-wordmark colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-css3-plain colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-nextjs-original text-6xl dark:text-white drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-react-original colored text-6xl drop-shadow-lg"></i>
+                            <i class="devicon-javascript-plain colored text-6xl drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                    <div class="relative flex overflow-hidden">
+                        <div class="animate-marquee-reverse whitespace-nowrap flex gap-8">
+                            <i class="devicon-nodejs-plain-wordmark colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-mongodb-plain-wordmark colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-python-plain colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-git-plain colored text-6xl drop-shadow-lg hover:scale-110 transition"></i>
+                            <i class="devicon-nodejs-plain-wordmark colored text-6xl drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Status Card -->
+            <div class="absolute -bottom-16 -left-12 glass-panel px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-[bounce_4s_infinite]">
+                <div class="flex items-center gap-4">
+                    <div class="relative"><div class="absolute inset-0 bg-green-400 rounded-full blur animate-pulse"></div><div class="relative bg-green-100 p-2 rounded-full text-green-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></div></div>
+                    <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Trạng thái</p><p class="text-base font-black text-slate-800 dark:text-slate-900">Đang nhận Job</p></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- PHẦN INFO & CONTACT -->
+    <section id="more-info" class="min-h-screen flex items-center justify-center relative py-20 overflow-hidden">
+        
+        <!-- FOOTER 3D CANVAS (WAVE) -->
+        <canvas id="footer-canvas"></canvas>
+
+        <div class="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-white/50 to-slate-100/80 dark:to-slate-900/80 pointer-events-none"></div>
+        <div class="max-w-5xl mx-auto px-6 relative z-10 text-center space-y-12">
+            <div class="glass-panel rounded-[3rem] p-10 md:p-16 shadow-2xl transform transition duration-500 hover:scale-[1.01] relative overflow-hidden reveal" data-tilt data-tilt-scale="1.02">
+                <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-100 dark:bg-indigo-900/30 rounded-full filter blur-3xl opacity-50"></div>
+                <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-pink-100 dark:bg-pink-900/30 rounded-full filter blur-3xl opacity-50"></div>
+                
+                <span class="text-7xl mb-8 block waving-hand cursor-pointer hover:scale-125 transition-transform duration-300 drop-shadow-md">👋</span>
+                
+                <h2 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-8">Về Nguyễn Danh Tiến</h2>
+                <p class="text-xl text-slate-600 dark:text-slate-300 leading-8 max-w-3xl mx-auto">
+                    Chào bạn, tôi là một lập trình viên Fullstack. Tôi không chỉ viết code, tôi kể chuyện qua các dòng lệnh. 
+                    Mục tiêu của tôi là tạo ra những sản phẩm số không chỉ chạy tốt mà còn phải khiến người dùng... 
+                    <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">không thể rời mắt.</span>
+                </p>
+            </div>
+
+            <!-- NEW: FIXED SATELLITE (CORE REACTOR) -->
+            <div class="relative h-64 w-full flex justify-center items-center my-8 hoverable" id="reactor-container">
+                <canvas id="reactor-canvas" class="w-64 h-64 z-20 cursor-pointer"></canvas>
+            </div>
+
+            <div class="reveal">
+                <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8 flex items-center justify-center gap-3">
+                    <span class="h-px w-10 bg-slate-300 dark:bg-slate-600"></span>KẾT NỐI NGAY<span class="h-px w-10 bg-slate-300 dark:bg-slate-600"></span>
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div onclick="showToast('Đã copy Facebook Link!')" class="hoverable social-card group rounded-3xl p-6 flex flex-col items-center justify-center gap-4 cursor-pointer relative overflow-hidden" data-tilt data-tilt-scale="1.1" data-tilt-glare data-tilt-max-glare="0.8">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i class="fab fa-facebook text-4xl text-blue-600 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 group-hover:text-blue-600">Facebook</span>
+                    </div>
+                    <div onclick="showToast('Đã copy Github Link!')" class="hoverable social-card group rounded-3xl p-6 flex flex-col items-center justify-center gap-4 cursor-pointer relative overflow-hidden" data-tilt data-tilt-scale="1.1" data-tilt-glare data-tilt-max-glare="0.8">
+                        <div class="absolute inset-0 bg-gradient-to-br from-slate-800/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i class="fab fa-github text-4xl text-slate-800 dark:text-white group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Github</span>
+                    </div>
+                    <div onclick="showToast('Đã copy Email của Tiến!')" class="hoverable social-card group rounded-3xl p-6 flex flex-col items-center justify-center gap-4 cursor-pointer relative overflow-hidden" data-tilt data-tilt-scale="1.1" data-tilt-glare data-tilt-max-glare="0.8">
+                        <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i class="fas fa-envelope text-4xl text-red-500 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 group-hover:text-red-500">Email Me</span>
+                    </div>
+                    <div onclick="showToast('Đang gọi cho Tiến...')" class="hoverable social-card group rounded-3xl p-6 flex flex-col items-center justify-center gap-4 cursor-pointer relative overflow-hidden" data-tilt data-tilt-scale="1.1" data-tilt-glare data-tilt-max-glare="0.8">
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i class="fas fa-phone-alt text-4xl text-green-600 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 group-hover:text-green-600">Liên hệ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-10 pb-4 text-slate-400 text-sm font-medium relative z-10">© 2024 Nguyen Danh Tien. All rights reserved.</div>
+        </div>
+    </section>
+
+    <!-- MUSIC PLAYER WIDGET -->
+    <div id="music-widget" class="fixed bottom-6 right-6 z-50 flex items-end flex-col gap-4">
+        <div id="music-panel" class="hidden glass-panel dark:bg-slate-900/80 p-4 rounded-2xl w-64 shadow-2xl backdrop-blur-md transform transition-all duration-300 origin-bottom-right scale-90 opacity-0 mb-2">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full border-2 border-primary overflow-hidden relative shadow-lg">
+                    <img id="music-avatar" src="https://i.scdn.co/image/ab67616d0000b2736b28b7e096235b2e316d2038" alt="Album Art" class="w-full h-full object-cover spin-slow paused">
+                    <div class="absolute inset-0 w-3 h-3 bg-black rounded-full m-auto z-10 border border-white/50"></div>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-white truncate">Lofi Chill Vibes</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Beats to Code to</p>
+                </div>
+                <div class="h-8 flex items-end gap-1 music-bars paused" id="music-visualizer">
+                    <span class="w-1 bg-primary rounded-t-lg h-2 transition-all"></span>
+                    <span class="w-1 bg-accent rounded-t-lg h-4 transition-all"></span>
+                    <span class="w-1 bg-primary rounded-t-lg h-3 transition-all"></span>
+                    <span class="w-1 bg-accent rounded-t-lg h-5 transition-all"></span>
+                </div>
+            </div>
+            <div class="mt-3 flex justify-between items-center border-t border-slate-200 dark:border-slate-700 pt-2">
+                <span class="text-[10px] text-slate-400">00:00 / 03:45</span>
+                <div class="flex gap-3 text-slate-600 dark:text-slate-300">
+                    <button class="hover:text-primary"><i class="fas fa-step-backward"></i></button>
+                    <button id="panel-play-btn" class="hover:text-primary"><i class="fas fa-play"></i></button>
+                    <button class="hover:text-primary"><i class="fas fa-step-forward"></i></button>
+                </div>
+            </div>
+        </div>
+        <button id="music-toggle-btn" class="hoverable w-14 h-14 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xl flex items-center justify-center text-xl hover:scale-110 transition-transform duration-300 border-2 border-white/20">
+            <i class="fas fa-music animate-pulse"></i>
+        </button>
+        <audio id="bg-music" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        feather.replace();
+        
+        // --- PRELOADER ---
+        const preloader = document.getElementById('preloader');
+        const loaderText = document.getElementById('loader-text');
+        const loaderBar = document.getElementById('loader-bar');
+        const logs = [
+            "> Initializing core systems...",
+            "> Loading React Components...",
+            "> Connecting to Three.js Engine...",
+            "> Fetching Cosmic Particles...",
+            "> Optimizing Experience...",
+            "> ACCESS GRANTED."
+        ];
+        
+        let step = 0;
+        let isLoaded = false;
+        const loaderInterval = setInterval(() => {
+            if (step < logs.length) {
+                loaderText.innerText = logs[step];
+                loaderBar.style.width = `${(step + 1) * 18}%`;
+                step++;
+            } else {
+                if (isLoaded || step >= logs.length) finishLoader();
+            }
+        }, 350);
+
+        window.addEventListener('load', () => {
+            isLoaded = true;
+            if (step >= logs.length) finishLoader();
+        });
+
+        function finishLoader() {
+            clearInterval(loaderInterval);
+            loaderBar.style.width = '100%';
+            loaderText.innerText = "> WELCOME, DEVELOPER.";
+            setTimeout(() => { preloader.style.opacity = '0'; preloader.style.visibility = 'hidden'; document.body.style.overflow = 'auto'; }, 500);
+        }
+        setTimeout(() => { if (preloader.style.visibility !== 'hidden') finishLoader(); }, 4000);
+
+        // --- MAGIC DUST ---
+        const magicContainer = document.getElementById('magic-dust-container');
+        const dustColors = ['#4f46e5', '#ec4899', '#22d3ee', '#f472b6'];
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.5) return; 
+            const particle = document.createElement('div'); particle.classList.add('magic-particle');
+            const size = Math.random() * 4 + 2; 
+            const color = dustColors[Math.floor(Math.random() * dustColors.length)];
+            particle.style.width = `${size}px`; particle.style.height = `${size}px`;
+            particle.style.backgroundColor = color; particle.style.left = `${e.clientX}px`; particle.style.top = `${e.clientY}px`;
+            magicContainer.appendChild(particle); setTimeout(() => { particle.remove(); }, 1000);
+        });
+
+        // --- SCROLL REVEAL ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); } });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- TOAST ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-check-circle text-green-500 text-lg"></i> <span>${message}</span>`;
+            container.appendChild(toast); requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 }, colors: ['#4f46e5', '#ec4899'] });
+        }
+
+        function scrollToContent() { document.getElementById("more-info").scrollIntoView({ behavior: "smooth" }); }
+        
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100; document.getElementById("scroll-progress").style.width = scrolled + "%";
+        };
+
+        // --- CONFETTI & CHEAT CODE ---
+        function fireConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#4f46e5', '#ec4899', '#ffffff'] }); }
+        const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        let cursorPosition = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[cursorPosition]) {
+                cursorPosition++;
+                if (cursorPosition === konamiCode.length) {
+                    var duration = 3 * 1000; var animationEnd = Date.now() + duration; var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+                    var random = function(min, max) { return Math.random() * (max - min) + min; };
+                    var interval = setInterval(function() {
+                        var timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) { return clearInterval(interval); }
+                        var particleCount = 50 * (timeLeft / duration);
+                        confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+                        confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+                    }, 250);
+                    showToast("🎉 CHEAT CODE ACTIVATED!"); cursorPosition = 0;
+                }
+            } else { cursorPosition = 0; }
+        });
+
+        // --- DARK MODE ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIconSun = document.getElementById('theme-icon-sun');
+        const themeIconMoon = document.getElementById('theme-icon-moon');
+        const htmlElement = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark'); themeIconMoon.classList.add('hidden'); themeIconSun.classList.remove('hidden');
+        } else {
+            htmlElement.classList.remove('dark'); themeIconMoon.classList.remove('hidden'); themeIconSun.classList.add('hidden');
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            if (htmlElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark'); themeIconMoon.classList.add('hidden'); themeIconSun.classList.remove('hidden'); updateThreeJsColor(true);
+            } else {
+                localStorage.setItem('theme', 'light'); themeIconMoon.classList.remove('hidden'); themeIconSun.classList.add('hidden'); updateThreeJsColor(false);
+            }
+        });
+
+        // --- MUSIC ---
+        const musicWidgetBtn = document.getElementById('music-toggle-btn');
+        const musicPanel = document.getElementById('music-panel');
+        const audio = document.getElementById('bg-music');
+        const panelPlayBtn = document.getElementById('panel-play-btn');
+        const avatar = document.getElementById('music-avatar');
+        const visualizer = document.getElementById('music-visualizer');
+        const musicIcon = musicWidgetBtn.querySelector('i');
+        let isMusicPanelOpen = false;
+        musicWidgetBtn.addEventListener('click', () => {
+            if (!isMusicPanelOpen) {
+                musicPanel.classList.remove('hidden'); setTimeout(() => { musicPanel.classList.remove('scale-90', 'opacity-0'); musicPanel.classList.add('scale-100', 'opacity-100'); }, 10); isMusicPanelOpen = true;
+            } else {
+                musicPanel.classList.add('scale-90', 'opacity-0'); musicPanel.classList.remove('scale-100', 'opacity-100'); setTimeout(() => musicPanel.classList.add('hidden'), 300); isMusicPanelOpen = false;
+            }
+        });
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play(); panelPlayBtn.innerHTML = '<i class="fas fa-pause"></i>'; musicIcon.classList.remove('fa-music'); musicIcon.classList.add('fa-pause');
+                avatar.classList.remove('paused'); visualizer.classList.remove('paused'); musicWidgetBtn.classList.add('animate-spin-slow');
+            } else {
+                audio.pause(); panelPlayBtn.innerHTML = '<i class="fas fa-play"></i>'; musicIcon.classList.remove('fa-pause'); musicIcon.classList.add('fa-music');
+                avatar.classList.add('paused'); visualizer.classList.add('paused'); musicWidgetBtn.classList.remove('animate-spin-slow');
+            }
+        }
+        panelPlayBtn.addEventListener('click', togglePlay);
+
+        // --- TYPEWRITER ---
+        const textToType = "Tôi thiết kế trải nghiệm số. Biến những dòng code khô khan thành giao diện tương tác sống động và đầy cảm xúc.";
+        const typeContainer = document.getElementById('typewriter-text');
+        let typeIndex = 0;
+        function typeWriter() {
+            if (typeIndex < textToType.length) {
+                typeContainer.textContent += textToType.charAt(typeIndex); typeIndex++; setTimeout(typeWriter, 30);
+            }
+        }
+        setTimeout(typeWriter, 500);
+
+        // --- CURSOR ---
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px'; });
+        function animateCursor() {
+            const dx = mouseX - cursorX; const dy = mouseY - cursorY; cursorX += dx * 0.1; cursorY += dy * 0.1;
+            cursor.style.left = cursorX + 'px'; cursor.style.top = cursorY + 'px'; requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        const hoverables = document.querySelectorAll('.hoverable, a, button');
+        hoverables.forEach(el => { el.addEventListener('mouseenter', () => document.body.classList.add('hovering')); el.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); });
+
+        // --- MAIN 3D BG ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene(); 
+        const lightColor = 0xf8fafc; const darkColor = 0x0f172a;
+        const initialColor = htmlElement.classList.contains('dark') ? darkColor : lightColor;
+        scene.background = new THREE.Color(initialColor); scene.fog = new THREE.Fog(initialColor, 10, 60);
+        function updateThreeJsColor(isDark) { const color = isDark ? darkColor : lightColor; scene.background.setHex(color); scene.fog.color.setHex(color); }
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); camera.position.z = 25; camera.position.x = -5;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; container.appendChild(renderer.domElement);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8); dirLight.position.set(20, 20, 20); dirLight.castShadow = true; scene.add(dirLight);
+        const pLight1 = new THREE.PointLight(0x6366f1, 1, 100); pLight1.position.set(10, 10, 10); scene.add(pLight1);
+        const pLight2 = new THREE.PointLight(0xec4899, 1, 100); pLight2.position.set(10, -10, 10); scene.add(pLight2);
+        const objects = []; const colors = [0xC7D2FE, 0xFBCFE8, 0xA7F3D0, 0xFDE68A]; 
+        function createShape() {
+            const geometries = [new THREE.TorusGeometry(1.2, 0.4, 16, 100), new THREE.IcosahedronGeometry(1.5, 0), new THREE.OctahedronGeometry(1.5, 0), new THREE.SphereGeometry(1, 32, 32)];
+            const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+            const material = new THREE.MeshStandardMaterial({ color: colors[Math.floor(Math.random() * colors.length)], roughness: 0.2, metalness: 0.1 });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (Math.random() * 35) - 5; mesh.position.y = (Math.random() - 0.5) * 35; mesh.position.z = (Math.random() - 0.5) * 20 - 5;
+            mesh.rotation.x = Math.random() * Math.PI; mesh.rotation.y = Math.random() * Math.PI; mesh.castShadow = true; mesh.receiveShadow = true;
+            mesh.userData = { rotSpeedX: (Math.random() - 0.5) * 0.02, rotSpeedY: (Math.random() - 0.5) * 0.02, offset: Math.random() * 100 };
+            scene.add(mesh); objects.push(mesh);
+        }
+        for(let i=0; i<40; i++) createShape();
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate); const time = clock.getElapsedTime();
+            camera.position.x += (mouseX * 0.005 - 5 - camera.position.x) * 0.05; camera.position.y += (-mouseY * 0.005 - camera.position.y) * 0.05; camera.lookAt(5, 0, 0);
+            objects.forEach(obj => { obj.rotation.x += obj.userData.rotSpeedX; obj.rotation.y += obj.userData.rotSpeedY; obj.position.y += Math.sin(time + obj.userData.offset) * 0.005; });
+            renderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+        // --- FOOTER WAVE ---
+        (function() {
+            const footerCanvas = document.getElementById('footer-canvas');
+            const rendererF = new THREE.WebGLRenderer({ canvas: footerCanvas, alpha: true, antialias: true });
+            rendererF.setSize(window.innerWidth, window.innerHeight);
+            rendererF.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            const sceneF = new THREE.Scene();
+            const cameraF = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+            cameraF.position.set(0, 20, 100); cameraF.lookAt(0, 0, 0);
+            const particlesGeometry = new THREE.BufferGeometry(); const count = 2000;
+            const positions = new Float32Array(count * 3); const scales = new Float32Array(count);
+            for(let i = 0; i < count; i++) {
+                const i3 = i * 3; positions[i3] = (Math.random() - 0.5) * 200; positions[i3 + 1] = 0; positions[i3 + 2] = (Math.random() - 0.5) * 100; scales[i] = Math.random();
+            }
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); particlesGeometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+            const particlesMaterial = new THREE.PointsMaterial({ color: 0x4f46e5, size: 2, sizeAttenuation: true, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial); sceneF.add(particles);
+            const clockF = new THREE.Clock();
+            function animateFooter() {
+                const elapsedTime = clockF.getElapsedTime();
+                const r = Math.sin(elapsedTime * 0.5) * 0.5 + 0.5; particlesMaterial.color.setHSL(0.7 + r * 0.1, 0.8, 0.6); 
+                for(let i = 0; i < count; i++) {
+                    const i3 = i * 3; const x = particlesGeometry.attributes.position.array[i3]; const z = particlesGeometry.attributes.position.array[i3 + 2];
+                    particlesGeometry.attributes.position.array[i3 + 1] = Math.sin(elapsedTime * 0.5 + x * 0.05) * 5 + Math.sin(elapsedTime * 0.3 + z * 0.05) * 5;
+                }
+                particlesGeometry.attributes.position.needsUpdate = true; particles.rotation.y = elapsedTime * 0.05;
+                rendererF.render(sceneF, cameraF); requestAnimationFrame(animateFooter);
+            }
+            animateFooter();
+            window.addEventListener('resize', () => { cameraF.aspect = window.innerWidth / window.innerHeight; cameraF.updateProjectionMatrix(); rendererF.setSize(window.innerWidth, window.innerHeight); });
+        })();
+
+        // --- NEW: FIXED CORE REACTOR (HOVER EFFECT) ---
+        (function() {
+            const canvas = document.getElementById('reactor-canvas');
+            const container = document.getElementById('reactor-container');
+            
+            // Setup Three.js
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(256, 256); // Match canvas CSS size
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            camera.position.z = 10;
+
+            // --- CREATE THE CORE ---
+            const coreGroup = new THREE.Group();
+            scene.add(coreGroup);
+
+            // 1. Inner Glowing Ball (Energy Source)
+            const innerGeo = new THREE.IcosahedronGeometry(1, 1);
+            const innerMat = new THREE.MeshBasicMaterial({ 
+                color: 0xec4899, 
+                wireframe: true, 
+                transparent: true, opacity: 0.8 
+            });
+            const innerSphere = new THREE.Mesh(innerGeo, innerMat);
+            coreGroup.add(innerSphere);
+
+            // Light inside
+            const pointLight = new THREE.PointLight(0xec4899, 2, 20);
+            coreGroup.add(pointLight);
+
+            // 2. Spinning Rings
+            const ringMat = new THREE.MeshStandardMaterial({ 
+                color: 0x6366f1, 
+                metalness: 0.8, roughness: 0.2, 
+                emissive: 0x4f46e5, emissiveIntensity: 0.5 
+            });
+            
+            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2, 0.1, 8, 50), ringMat);
+            const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.1, 8, 50), ringMat);
+            const ring3 = new THREE.Mesh(new THREE.TorusGeometry(3, 0.05, 8, 50), ringMat); // Outer thin ring
+
+            coreGroup.add(ring1);
+            coreGroup.add(ring2);
+            coreGroup.add(ring3);
+
+            // External Lights for rings
+            const light1 = new THREE.DirectionalLight(0xffffff, 1);
+            light1.position.set(1, 1, 5);
+            scene.add(light1);
+
+            // --- ANIMATION STATE ---
+            let isHovering = false;
+            let currentSpeed = 0.01;
+            let targetSpeed = 0.01;
+            let scale = 1;
+
+            container.addEventListener('mouseenter', () => { isHovering = true; });
+            container.addEventListener('mouseleave', () => { isHovering = false; });
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // State Logic
+                if (isHovering) {
+                    targetSpeed = 0.15; // Fast spin
+                    scale += (1.2 - scale) * 0.1; // Scale up
+                    innerMat.color.setHex(0xffffff); // Core turns white-hot
+                    ringMat.emissiveIntensity = 2; // Glow brighter
+                } else {
+                    targetSpeed = 0.01; // Slow spin
+                    scale += (1 - scale) * 0.1; // Scale down
+                    innerMat.color.setHex(0xec4899); // Back to pink
+                    ringMat.emissiveIntensity = 0.5; // Dim glow
+                }
+
+                // Smooth speed transition
+                currentSpeed += (targetSpeed - currentSpeed) * 0.05;
+
+                // Rotation
+                innerSphere.rotation.y -= currentSpeed;
+                innerSphere.rotation.z -= currentSpeed;
+
+                ring1.rotation.x += currentSpeed;
+                ring1.rotation.y += currentSpeed * 0.5;
+
+                ring2.rotation.x -= currentSpeed * 0.5;
+                ring2.rotation.y += currentSpeed;
+
+                ring3.rotation.z += currentSpeed * 0.2; // Outer ring slow
+                
+                coreGroup.scale.set(scale, scale, scale);
+
+                renderer.render(scene, camera);
+            }
+            animate();
+        })();
+    </script>
+</body>
+</html>
